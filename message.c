@@ -11,7 +11,7 @@ int send_string(int fd, const char *str){
 
     ssize_t tmp = len;
 
-    len = len*2;
+    len = len+4;
 
     char str1[len];
 
@@ -31,34 +31,55 @@ int send_string(int fd, const char *str){
 
 char *recv_string(int fd){
 
-    char buff[2];
-    char *res;
-    size_t n;
+    char buff;
+    char sizeString[sizeof(int)];
+    int i = 0;
 
-    while((n = read(fd, buff, 1)) == -1){
+    while(read(fd, &buff, 1) > 0){
 
-        if( n > 0){
+        if(!isspace(buff)){
 
-            if(!isspace(buff)){
+            sizeString[i]=buff;
+            i++;
 
-                *res = buff;
-                ++res;
+        }else{
 
-            }else{
-
-                break;
-
-            }
+            sizeString[i]='\0';
+            break;
 
         }
 
     }
 
-    int len = atoi(res);
+    int sizeTab = atoi(sizeString)+1;
 
-    printf("%d",len);
+    //à revoir
+    char *str = (char *)calloc(sizeTab,sizeof(char));
+    char *res = str;
+    lseek(fd, 3, SEEK_SET);
 
-    return NULL;
+    char tmp;
+    int j = 0;
+
+    while(read(fd, &tmp, 1) > 0){
+
+        if(tmp != '\0'){
+
+            str[j] = tmp;
+            j++;
+
+        }else{
+
+            str[j] = '\0';
+            break;
+
+        }
+
+    }
+
+    free(str);
+
+    return res;
 }
 
 int send_argv(int fd, char *argv[]){

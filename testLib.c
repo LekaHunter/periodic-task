@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
+#include <ctype.h>
 
 int main(int argc, char *argv[]){
 
@@ -21,13 +23,13 @@ int main(int argc, char *argv[]){
     }
 
     fd = open(tubenomme, O_RDWR);
-    
+
     if(fd == -1){
         perror("open");
         exit(2);
     }
 
-    const char *str = "Salut/toi/yo/ghy/yo/ahahahahahahahaha";
+    const char *str = "Salut/toi/yo/ghy/yo/ahahahahahahahahaZ";
 
     resSend = send_string(fd, str);
 
@@ -38,9 +40,16 @@ int main(int argc, char *argv[]){
 
     char *resRecv = recv_string(fd);
 
-    printf("%s",resRecv);
+    printf("%s\n",resRecv);
 
-    close(fd);
+    int closeFd = close(fd);
+
+    if(closeFd == -1){
+
+        perror("close");
+        exit(4);
+
+    }
 
     return 0;
 }
