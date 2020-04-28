@@ -53,7 +53,6 @@ char *recv_string(int fd){
 
     int sizeTab = atoi(sizeString)+1;
 
-    //à revoir
     char *str = (char *)calloc(sizeTab,sizeof(char));
     lseek(fd, 3, SEEK_SET);
 
