@@ -31,6 +31,9 @@ int main(int argc, char *argv[]){
 
     const char *str = "Salut/toi/yo/ghy/yo/ahahahahahahahahaZ";
 
+    //send string in the named pipe
+    printf("Send '%s' in the named pipe\n",str);
+
     resSend = send_string(fd, str);
 
     if(resSend == -1){
@@ -38,11 +41,57 @@ int main(int argc, char *argv[]){
         exit(3);
     }
 
+    sleep(2);
+
+    //recv string by fd
+    printf("Receve the string :\n");
+
     char *resRecv = recv_string(fd);
 
     printf("%s\n",resRecv);
 
+
+    //send array of string
+    printf("Send an array of string\n");
+
+    char *argvEx[5];
+
+    argvEx[0] = "Salut";
+    argvEx[1] = "toi";
+    argvEx[2] = "yo";
+    argvEx[3] = "ghy";
+    argvEx[4] = NULL;
+
+    int resSendArgv = send_argv(fd,argvEx);
+
+    sleep(2);
+
+    //recv the array of string
+    printf("Receve the array of string\n");
+
+    char **test = recv_argv(fd);
+
+    ssize_t j = 0;
+    while(test[j] != NULL){
+
+        printf("%s\n",test[j]);
+        j++;
+
+    }
+
+    //memory clean
+
     free(resRecv);
+
+    ssize_t i = 0;
+    while(test[i] != NULL){
+
+        free(test[i]);
+        i++;
+
+    }
+
+    free(test);
 
     int closeFd = close(fd);
 
