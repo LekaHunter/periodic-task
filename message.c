@@ -55,7 +55,6 @@ char *recv_string(int fd){
 
     //à revoir
     char *str = (char *)calloc(sizeTab,sizeof(char));
-    char *res = str;
     lseek(fd, 3, SEEK_SET);
 
     char tmp;
@@ -77,9 +76,7 @@ char *recv_string(int fd){
 
     }
 
-    free(str);
-
-    return res;
+    return str;
 }
 
 int send_argv(int fd, char *argv[]){

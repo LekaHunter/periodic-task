@@ -42,6 +42,9 @@ int main(int argc, char *argv[]){
 
     printf("%s\n",resRecv);
 
+
+    free(resRecv);
+
     int closeFd = close(fd);
 
     if(closeFd == -1){

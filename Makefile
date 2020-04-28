@@ -14,6 +14,7 @@ message.o: message.c message.h
 
 clean: 
 		rm -f *.o
+		rm $(TARGET)
 		rm /tmp/example.fifo
 		
 mrproper: clean
