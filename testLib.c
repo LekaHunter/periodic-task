@@ -43,14 +43,6 @@ int main(int argc, char *argv[]){
 
     sleep(2);
 
-    //recv string by fd
-    printf("Receve the string :\n");
-
-    char *resRecv = recv_string(fd);
-
-    printf("%s\n",resRecv);
-
-
     //send array of string
     printf("Send an array of string\n");
 
@@ -65,33 +57,6 @@ int main(int argc, char *argv[]){
     int resSendArgv = send_argv(fd,argvEx);
 
     sleep(2);
-
-    //recv the array of string
-    printf("Receve the array of string\n");
-
-    char **test = recv_argv(fd);
-
-    ssize_t j = 0;
-    while(test[j] != NULL){
-
-        printf("%s\n",test[j]);
-        j++;
-
-    }
-
-    //memory clean
-
-    free(resRecv);
-
-    ssize_t i = 0;
-    while(test[i] != NULL){
-
-        free(test[i]);
-        i++;
-
-    }
-
-    free(test);
 
     int closeFd = close(fd);
 
