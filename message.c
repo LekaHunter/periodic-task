@@ -5,21 +5,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <errno.h>
 
 int send_string(int fd, const char *str){
     ssize_t len = strlen(str);
 
-    ssize_t tmp = len;
+    ssize_t writeSize = write(fd, &len, sizeof(ssize_t));
 
-    len = len+4;
+    if(writeSize == -1){
 
-    char str1[len];
+        fprintf(stderr,"The size of the string can't be write in the pipe\n");
+        exit(-1);
 
-    snprintf(str1, len, "%ld %s",tmp,str);
+    }
 
-    ssize_t valwrite = write(fd, str1, len);
+    ssize_t writeString = write(fd, str, len);
 
-    if(valwrite == -1){
+    if(writeString == -1){
 
         fprintf(stderr,"The string can't be write in the pipe\n");
         exit(-1);
@@ -31,47 +33,25 @@ int send_string(int fd, const char *str){
 
 char *recv_string(int fd){
 
-    char buff;
-    char sizeString[sizeof(int)];
-    int i = 0;
+    ssize_t sizeChar;
 
-    while(read(fd, &buff, 1) > 0){
+    ssize_t readSize = read(fd, &sizeChar, sizeof(ssize_t));
 
-        if(!isspace(buff)){
+    if(readSize == -1){
 
-            sizeString[i]=buff;
-            i++;
-
-        }else{
-
-            sizeString[i]='\0';
-            break;
-
-        }
+        fprintf(stderr,"The size of the string can't be read in the pipe\n");
+        exit(-1);
 
     }
 
-    int sizeTab = atoi(sizeString)+1;
+    char *str = (char *)calloc(sizeChar+1,sizeof(char));
 
-    char *str = (char *)calloc(sizeTab,sizeof(char));
-    lseek(fd, 3, SEEK_SET);
+    ssize_t readString = read(fd, str, sizeChar);
 
-    char tmp;
-    int j = 0;
+    if(readString == -1){
 
-    while(read(fd, &tmp, 1) > 0){
-
-        if(tmp != '\0'){
-
-            str[j] = tmp;
-            j++;
-
-        }else{
-
-            str[j] = '\0';
-            break;
-
-        }
+        fprintf(stderr,"The string can't be read in the pipe\n");
+        exit(-1);
 
     }
 
