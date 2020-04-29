@@ -7,6 +7,9 @@
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <sys/types.h>
+
 
 int send_string(int fd, const char *str){
     ssize_t len = strlen(str);
@@ -124,4 +127,28 @@ char **recv_argv(int fd){
     }
 
     return argv;
+}
+
+void procExPeriod(const char *path, pid_t *pid){
+
+    FILE *fp = fopen(path,"r");
+
+    if(fp == NULL){
+
+        perror("fopen");
+        exit(5);
+
+    }
+
+    size_t r = fread(pid, sizeof(pid_t), 1, fp);
+
+    int c = fclose(fp);
+
+    if(c == EOF){
+
+        perror("fclose");
+        exit(6);
+
+    }
+
 }
