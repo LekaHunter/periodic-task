@@ -1,7 +1,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <stdbool.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -34,6 +33,20 @@ char **recv_argv(int fd);
  * @param path Le chemin vers le fichier
 */
 
-void procExPeriod(const char *path, pid_t *pid);
+int procExPeriod(const char *path, pid_t *pid);
+
+/** 
+ * affiUsage est une fonction qui affiche l'usage du programme periodic
+*/
+
+void affiUsage();
+
+/** 
+ * argvValidite est une fonction qui test la validitée des argumens passer à periodic
+ * @param argv La liste des arguments passer à periodic
+ * @return La fonction return un int 0 si tous se passe bien sinon il y a une erreur
+*/
+
+int argvValidite(int argc, char *argv[], long *date, long *period);
 
 #endif /* MESSAGE_H */

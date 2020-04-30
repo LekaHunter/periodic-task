@@ -1,14 +1,17 @@
 CC=gcc
+TARGET=projet
 
-testLib: testLib.o message.o
-		$(CC) testLib.o message.o -o testLib
+all=$(TARGET)
 
-testLib.o: testLib.c message.h
-		$(CC) -c -o testLib.o testLib.c
+$(TARGET): periodic.o message.o
+	$(CC) periodic.o message.o -o $(TARGET)
+
+periodic.o: periodic.c message.h
+	$(CC) -c -o periodic.o periodic.c
 
 message.o: message.c message.h
-		$(CC) -c -o message.o message.c
+	$(CC) -c -o message.o message.c
 
 clean: 
-		rm -f *.o
-		rm /tmp/example.fifo
+	rm -f *.o
+	rm -f $(TARGET)
