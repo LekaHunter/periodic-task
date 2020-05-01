@@ -91,7 +91,7 @@ char *recv_string(int fd){
     char *str = (char *)calloc(sizeString+1,sizeof(char));
 
     assert(str != NULL);
-    
+
     ssize_t readString = read(fd, str, sizeString);
 
     if(readString == -1){
@@ -214,14 +214,14 @@ void affiUsage(){
 
 }
 
-int argvValidite(int argc, char *argv[], long *date, long *period){
+int argvValidite(int argc, char *argv[]){
 
     char *endptr, *endptr2;
     char *now = "now";
 
-    *date = strtol(argv[1],&endptr,10);
+    long date = strtol(argv[1],&endptr,10);
 
-    *period = strtol(argv[2],&endptr2,10);
+    long period = strtol(argv[2],&endptr2,10);
 
     if(argv[1] == endptr && strcmp(endptr,now) == 0){ 
 
@@ -233,7 +233,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
         }       
 
-        if(*period == 0){
+        if(period == 0){
 
             printf("On souhaite exécuter '");
 
@@ -280,7 +280,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
             }
             
-            printf("' toutes les %ld secondes à partir de maintenant\n", *period);
+            printf("' toutes les %ld secondes à partir de maintenant\n", period);
 
         }        
 
@@ -294,7 +294,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
         } 
 
-        if(*period == 0){
+        if(period == 0){
 
             printf("On souhaite exécuter '");
             
@@ -316,7 +316,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
             }
             
-            printf("' en commençant dans %ld secondes\n", *date);
+            printf("' en commençant dans %ld secondes\n", date);
             printf("La commande ne sera exécutée qu'une seule fois\n");
 
         }else{
@@ -341,7 +341,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
             }
             
-            printf("' toutes les %ld secondes en commençant dans %ld secondes\n", *period, *date);
+            printf("' toutes les %ld secondes en commençant dans %ld secondes\n", period, date);
 
         }
 
@@ -357,16 +357,16 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
         time_t dateNow = time(NULL);
 
-        if(*date < dateNow){
+        if(date < dateNow){
 
             printf("La date de départ est antérieur à la date actuel\n");
             exit(-1);
 
         }else{
 
-            char *res = ctime(date);
+            char *res = ctime(&date);
 
-            if(*period == 0){
+            if(period == 0){
 
                 printf("On souhaite exécuter '");
             
@@ -413,7 +413,7 @@ int argvValidite(int argc, char *argv[], long *date, long *period){
 
                 }
                 
-                printf("' toutes les %ld secondes à partir du %s", *period, res);
+                printf("' toutes les %ld secondes à partir du %s", period, res);
 
             }
 

@@ -89,37 +89,14 @@ int main(int argc,char *argv[]){
         }
 
     }
-
-    long date;
-    long period;      
-
-    ssize_t readDate = read(fd, &date, sizeof(long));
-
-    if(readDate == -1){
-
-        fprintf(stderr,"La lecture de la date via le tube a échouer!\n");
-        exit(-1);
-
-    }
-
-    ssize_t readPeriod = read(fd, &period, sizeof(long));
-
-    if(readPeriod == -1){
-
-        fprintf(stderr,"La lecture de la period via le tube a échouer!\n");
-        exit(-1);
-
-    }
     
     char **test = recv_argv(fd);   
 
     closeTube(fd);
     unlink(tubeNomme);
 
-    //creation de la liste des commandes
-    char *listCmd = (char *)calloc(100,sizeof(char));
+    //creation de la structure de la liste des commandes
     
-    assert(listCmd != NULL);
 
     //ajout de la cmd dans listCmd
 
@@ -130,7 +107,7 @@ int main(int argc,char *argv[]){
     //recherche de la cmd à réaliser dans listCmd
 
     //envoie de listCmd quand period reçoit SIGUSER2
-    
+
 
     printf("date = %ld\n",date);
 

@@ -84,11 +84,8 @@ int main(int argc, char *argv[]){
         exit(2);
 
     }
-
-    long date;
-    long period;
     
-    int res = argvValidite(argc, argv, &date, &period);
+    int res = argvValidite(argc, argv);
 
     if(res != 0){
 
@@ -123,28 +120,6 @@ int main(int argc, char *argv[]){
     int fd;
 
     creationOuvrirTube(tubeNomme,&fd);
-
-    ssize_t writeSize = write(fd, &date, sizeof(long));
-
-    if(writeSize == -1){
-
-        fprintf(stderr,"La date de départ n'a pas pu être envoyé!\n");
-        exit(-1);
-
-    }
-
-    sleep(5);
-
-    writeSize = write(fd, &period, sizeof(long));
-
-    if(writeSize == -1){
-
-        fprintf(stderr,"La period n'a pas pu être envoyé!\n");
-        exit(-1);
-
-    }
-
-    sleep(5);
 
     int sendArgv = send_argv(fd, argv);
 
