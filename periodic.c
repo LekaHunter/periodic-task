@@ -116,10 +116,31 @@ int main(int argc, char *argv[]){
     }*/
 
     //envoyer les informations nécessaires à 'period' via le tube nommé
+
+    //Ouverture du tube nommé s'il existe déjà sinon le créer
     char *tubeNomme = "/tmp/period.fifo";
     int fd;
 
-    creationOuvrirTube(tubeNomme,&fd);
+    int fileFifoExist = access(tubeNomme, F_OK);
+
+    if(fileFifoExist == -1){
+
+        creationOuvrirTube(tubeNomme,&fd);
+
+    }else{
+
+        fd = open(tubeNomme, O_RDWR);
+
+        if(fd == -1){
+
+            perror("open");
+            exit(4);
+
+        } 
+
+    }
+
+    sleep(10);
 
     int sendArgv = send_argv(fd, argv);
 

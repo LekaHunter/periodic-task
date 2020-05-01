@@ -15,6 +15,15 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <stdbool.h>
+
+struct cmd {
+
+    char *nameAndArgs;
+    long date;
+    long periode;
+
+};
 
 void creationOuvrirTube(char *path, int *fd){
 
@@ -428,4 +437,115 @@ int argvValidite(int argc, char *argv[]){
     }
 
     return 0;
+}
+
+void array_create(struct array *self){
+
+    assert(self != NULL);
+
+    self->capacity = 100;
+    self->size = 0;
+    self->listCmd = (struct cmd *)calloc(self->capacity,sizeof(struct cmd));
+
+}
+
+void array_destroy(struct array *self){
+
+    assert(self != NULL);
+
+    free(self->listCmd);
+    self->capacity = 0;
+    self->size = 0;
+
+}
+
+void array_add(struct array *self, struct cmd cmd){
+
+    assert(self != NULL);
+
+    if(self->size == self->capacity){
+
+        self->capacity = self->capacity * 2;
+
+        struct cmd *data = (struct cmd *)calloc(self->capacity,sizeof(struct cmd));
+
+        memcpy(data,self->listCmd,self->size*sizeof(struct cmd));
+
+        free(self->listCmd);
+
+        self->listCmd = data;
+
+    }
+
+    self->listCmd[self->size] = cmd;
+    self->size = self->size + 1;
+
+}
+
+void array_remove(struct array *self, size_t index){
+
+    assert(self != NULL);
+
+    for(size_t i = index + 1; i < self->size; ++i){
+
+        self->listCmd[i - 1] = self->listCmd[i];
+
+    }
+
+    self->size = self->size - 1;
+
+}
+
+struct cmd *array_get(const struct array *self, size_t index){
+
+    assert(self != NULL);
+
+    if(index >= self->size){
+
+        return NULL;
+        
+    }
+
+    struct cmd *getCmd = NULL;
+  
+    getCmd = &(self->listCmd[index]);
+    
+    return getCmd;
+}
+
+size_t array_size(const struct array *self){
+
+    assert(self != NULL);
+
+    return self->size;
+
+}
+
+bool compare_cmd(struct cmd cmd1, struct cmd cmd2){
+
+    assert(&cmd1 != NULL && &cmd2 != NULL);
+
+    if(strcmp(cmd1.nameAndArgs,cmd2.nameAndArgs) == 0 && cmd1.date == cmd2.date && cmd1.periode == cmd2.periode){
+
+        return true;
+
+    }
+
+    return false;
+}
+
+size_t array_search(const struct array *self, struct cmd command){
+
+    assert(self != NULL);
+  
+    size_t index = 0; 
+
+    while(index < self->size && compare_cmd(self->listCmd[index],command) == false){
+
+        index = index + 1;
+
+    }    
+
+    return index;
+
 }

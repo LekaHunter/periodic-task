@@ -3,10 +3,13 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdbool.h>
+
+struct cmd;
 
 struct array {
 
-    char *listCmd;
+    struct cmd *listCmd;
     size_t capacity;
     size_t size;
 
@@ -84,7 +87,7 @@ void array_destroy(struct array *self);
 /*
  * Add a cmd at the end of the array
  */
-void array_add(struct array *self, char *cmd);
+void array_add(struct array *self, struct cmd cmd);
 
 /*
  * Remove a cmd in the array (preserving the order)
@@ -94,16 +97,22 @@ void array_remove(struct array *self, size_t index);
 /*
  * Get a pointer to the cmd at the specified index in the array
  */
-char **array_get(const struct array *self, size_t index);
+struct cmd *array_get(const struct array *self, size_t index);
 
 /*
  * Get the size of the array
  */
 size_t array_size(const struct array *self);
 
+/* 
+ *  Compare two cmd
+*/
+
+bool compare_cmd(struct cmd cmd1, struct cmd cmd2);
+
 /*
  * Search for a cmd in the array.
  */
-size_t array_search(const struct array *self, int value);
+size_t array_search(const struct array *self, struct cmd command);
 
 #endif /* MESSAGE_H */

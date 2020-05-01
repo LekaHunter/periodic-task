@@ -90,47 +90,31 @@ int main(int argc,char *argv[]){
 
     }
     
-    char **test = recv_argv(fd);   
+    char **argv_recv = recv_argv(fd);   
 
     closeTube(fd);
     unlink(tubeNomme);
 
-    //creation de la structure de la liste des commandes
-    
+    //exo7
+    //creation de la structure de la liste des commandes    
 
     //ajout de la cmd dans listCmd
 
-
     //suppression de la cmd dans listCmd
-
 
     //recherche de la cmd à réaliser dans listCmd
 
     //envoie de listCmd quand period reçoit SIGUSER2
 
-
-    printf("date = %ld\n",date);
-
-    printf("periode = %ld\n",period);
-
-    printf("ARGV:\n");
-    ssize_t j = 0;
-    while(test[j] != NULL){
-
-        printf("%s\n",test[j]);
-        j++;
-
-    }
-
     ssize_t i = 0;
-    while(test[i] != NULL){
+    while(argv_recv[i] != NULL){
 
-        free(test[i]);
+        free(argv_recv[i]);
         i++;
 
     }
 
-    free(test);
+    free(argv_recv);
 
     return 0;
 }
