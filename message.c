@@ -8,9 +8,47 @@
 #include <errno.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include <time.h>
+#include <string.h>
+#include <ctype.h>
 
+void creationOuvrirTube(char *path, int *fd){
+
+    int res = mkfifo(path, S_IRWXU);
+
+    if(res == -1){
+
+        perror("mkfifo");
+        exit(1);
+
+    }
+
+    *fd = open(path, O_RDWR);
+
+    if(*fd == -1){
+
+        perror("open");
+        exit(2);
+
+    }
+
+}
+
+void closeTube(int fd){
+
+    int closeFd = close(fd);
+
+    if(closeFd == -1){
+
+        perror("close");
+        exit(4);
+
+    }
+
+}
 
 int send_string(int fd, const char *str){
     ssize_t len = strlen(str);
@@ -80,7 +118,7 @@ int send_argv(int fd, char *argv[]){
     if(writeSizeArgv == -1){
 
         fprintf(stderr,"The size array of the string can't be write in the pipe\n");
-        return -1;
+        exit(-1);
 
     }
 
@@ -135,19 +173,27 @@ int procExPeriod(const char *path, pid_t *pid){
     FILE *fp = fopen(path,"r");
 
     if(fp == NULL){
-        
-        return -1;
+
+        perror("fopen");
+        exit(-1);
 
     }
 
     size_t r = fread(pid, sizeof(pid_t), 1, fp);
+
+    if(r != 1){
+
+        perror("fread");
+        exit(-1);
+
+    }
 
     int c = fclose(fp);
 
     if(c == EOF){
 
         perror("fclose");
-        return -1;
+        exit(-1);
 
     }
 

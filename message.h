@@ -4,6 +4,20 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+/** 
+ * creationOuvrirTube est une fonction qui cree un tube nommé puis l'ouvrir
+ * @param path Le chemin vers le tube nommé
+*/
+
+void creationOuvrirTube(char *path, int *fd);
+
+/** 
+ * closeTube est une fonction qui ferme un tube nommé
+ * @param fd Le descripteur du tube nommé
+*/
+
+void closeTube(int fd);
+
 /**
  * send_string est une focntion qui envoie une chaine de caractères via un descripteur de fichier
  */
