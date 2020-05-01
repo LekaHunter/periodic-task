@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <assert.h>
 
 int main(int argc,char *argv[]){
 
@@ -114,6 +115,22 @@ int main(int argc,char *argv[]){
 
     closeTube(fd);
     unlink(tubeNomme);
+
+    //creation de la liste des commandes
+    char *listCmd = (char *)calloc(100,sizeof(char));
+    
+    assert(listCmd != NULL);
+
+    //ajout de la cmd dans listCmd
+
+
+    //suppression de la cmd dans listCmd
+
+
+    //recherche de la cmd à réaliser dans listCmd
+
+    //envoie de listCmd quand period reçoit SIGUSER2
+    
 
     printf("date = %ld\n",date);
 

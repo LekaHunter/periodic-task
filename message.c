@@ -14,6 +14,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 void creationOuvrirTube(char *path, int *fd){
 
@@ -89,6 +90,8 @@ char *recv_string(int fd){
 
     char *str = (char *)calloc(sizeString+1,sizeof(char));
 
+    assert(str != NULL);
+    
     ssize_t readString = read(fd, str, sizeString);
 
     if(readString == -1){
@@ -157,6 +160,9 @@ char **recv_argv(int fd){
     }
 
     char **argv = (char **)calloc(sizeArr,sizeof(char *));
+
+    assert(argv != NULL);
+
     argv[sizeArr-1] = NULL;
     
     for(size_t i = 0; i < sizeArr-1; i++){

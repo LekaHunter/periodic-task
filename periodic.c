@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <signal.h>
+#include <fcntl.h>
 
 int main(int argc, char *argv[]){
     pid_t pid;
@@ -36,8 +38,43 @@ int main(int argc, char *argv[]){
 
         printf("Liste des commandes dans period :\n");
 
+        //recevoir la listCmd
+        //Ouverture du tube nommé s'il existe déjà sinon le créer
+        char *tubeNomme = "/tmp/period.fifo";
+        int fd = open(tubeNomme, O_RDWR);
 
-        exit(1);
+        if(fd == -1){
+
+            perror("open");
+            exit(-1);
+
+        }
+
+        char **listCmd = recv_argv(fd);   
+
+        closeTube(fd);
+        unlink(tubeNomme);
+
+        //afficher la listCmd
+        ssize_t j = 0;
+        while(listCmd[j] != NULL){
+
+            printf("%s\n",listCmd[j]);
+            j++;
+
+        }
+
+        ssize_t i = 0;
+        while(listCmd[i] != NULL){
+
+            free(listCmd[i]);
+            i++;
+
+        }
+
+        free(listCmd);
+
+        exit(0);
 
     }
 
