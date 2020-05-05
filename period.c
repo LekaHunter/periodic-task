@@ -6,11 +6,43 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <dirent.h>
 #include <assert.h>
+#include <signal.h>
+#include <time.h>
+#include <string.h>
+
+struct cmd {
+
+    char **nameAndArgs;
+    long date;
+    long periode;
+
+};
+
+volatile sig_atomic_t usr1_receive = 0;
+
+void handSIGUSR1(int sig){
+
+    usr1_receive = 1;
+
+}
+
+void handSIGUSR2(int sig){
+
+    usr1_receive = 2;
+
+}
 
 int main(int argc,char *argv[]){
+
+    //exo7
+    //creation de la structure de la liste des commandes    
+    struct array list_cmd;
+
+    array_create(&list_cmd);
+
+    struct cmd newcmd;
 
     //Test si le fichier period.pid existe deja sinon Ecriture du PID dans period.pid
     int filePidExist = access("/tmp/period.pid", F_OK);
@@ -89,32 +121,55 @@ int main(int argc,char *argv[]){
         }
 
     }
-    
-    char **argv_recv = recv_argv(fd);   
 
-    closeTube(fd);
-    unlink(tubeNomme);
+    while(1){
 
-    //exo7
-    //creation de la structure de la liste des commandes    
+        signal(SIGUSR1,handSIGUSR1);
+        signal(SIGUSR2,handSIGUSR2);
 
-    //ajout de la cmd dans listCmd
+        if(usr1_receive == 1){           
+            
+            char **argv_recv = recv_argv(fd);   
 
-    //suppression de la cmd dans listCmd
+            size_t size = 0;
 
-    //recherche de la cmd à réaliser dans listCmd
+            while(argv_recv[size] != NULL){
 
-    //envoie de listCmd quand period reçoit SIGUSER2
+                size++;
 
-    ssize_t i = 0;
-    while(argv_recv[i] != NULL){
+            }
 
-        free(argv_recv[i]);
-        i++;
+            free(argv_recv);
+            closeTube(fd);
+            unlink(tubeNomme);
+
+            usr1_receive = 0;
+            break;
+
+        }
+
 
     }
 
-    free(argv_recv);
+    
+
+    /*for(size_t i = 0; i < list_cmd.size; i++){
+
+        size_t j = 0;
+
+        while(list_cmd.listCmd[i].nameAndArgs[j] != NULL){
+
+            printf("%s\n",list_cmd.listCmd[i].nameAndArgs[j]);
+            j++;
+
+        }
+        
+        printf("date = %ld\n",list_cmd.listCmd[i].date);
+        printf("periode = %ld\n",list_cmd.listCmd[i].periode);
+
+    }*/   
+    
+    array_destroy(&list_cmd);
 
     return 0;
 }
