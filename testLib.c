@@ -31,8 +31,10 @@ int main(int argc, char *argv[]){
 
     const char *str = "Salut/toi/yo/ghy/yo/ahahahahahahahahaZ";
 
+    sleep(2);
+
     //send string in the named pipe
-    printf("Send '%s' in the named pipe\n",str);
+    printf("Send '%s' with %ld size in the named pipe\n",str,strlen(str));
 
     resSend = send_string(fd, str);
 
@@ -46,17 +48,23 @@ int main(int argc, char *argv[]){
     //send array of string
     printf("Send an array of string\n");
 
-    char *argvEx[5];
+    char **argvEx = (char **)calloc(5,sizeof(char *));
 
-    argvEx[0] = "Salut";
+    argvEx[0] = "salut";
     argvEx[1] = "toi";
     argvEx[2] = "yo";
     argvEx[3] = "ghy";
-    argvEx[4] = NULL;
+    argvEx[4] = NULL;    
 
-    int resSendArgv = send_argv(fd,argvEx);
+    for(size_t j = 0; j < 4; j++){
+
+        printf("%s\n",argvEx[j]);
+
+    }
 
     sleep(2);
+
+    int resSendArgv = send_argv(fd,argvEx);
 
     int closeFd = close(fd);
 
@@ -66,6 +74,10 @@ int main(int argc, char *argv[]){
         exit(4);
 
     }
+
+    free(argvEx);
+
+    unlink(tubenomme);
 
     return 0;
 }

@@ -5,7 +5,13 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-struct cmd;
+struct cmd {
+
+    char **nameAndArgs;
+    long date;
+    long periode;
+
+};
 
 struct array {
 
@@ -54,6 +60,30 @@ int send_argv(int fd, char *argv[]);
 char **recv_argv(int fd);
 
 /** 
+ * send_cmd est une foction qui envoie une struct cmd via un descripteur de fichier
+*/
+
+int send_cmd(int fd, struct cmd *self);
+
+/** 
+ * recv_cmd est une fonction qui recoit une struct cmd via un descripteur de fichier
+*/
+
+struct cmd *recv_cmd(int fd);
+
+/** 
+ * send_arrayCmd est une fonction qui envoie une liste de commande via un descripteur de fichier
+*/
+
+int send_arrayCmd(int fd, struct array *self);
+
+/** 
+ * recv_arrayCmd est une focntion qui recoit une liste de commande via un descripteur de fichier
+*/
+
+//struct array *recv_arrayCmd(int fd);
+
+/** 
  * procExPeriod est une focntion qui test si un fichier existe, et lit un pid si le cas echéant
  * @param path Le chemin vers le fichier
 */
@@ -73,6 +103,16 @@ void affiUsage();
 */
 
 int argvValidite(int argc, char *argv[]);
+
+/*
+ * Create a cmd with a argv
+ */
+void cmd_create(struct cmd *self, size_t size);
+
+/*
+ * Destroy a cmd
+ */
+void cmd_destroy(struct cmd *self);
 
 /*
  * Create an empty array

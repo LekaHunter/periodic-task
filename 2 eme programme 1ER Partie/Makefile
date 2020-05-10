@@ -11,4 +11,3 @@ message.o: message.c message.h
 
 clean: 
 		rm -f *.o
-		rm /tmp/example.fifo

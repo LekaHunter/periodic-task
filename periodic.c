@@ -25,6 +25,8 @@ int main(int argc, char *argv[]){
 
         }
 
+        printf("%ld\n",pid);
+
         //Envoie signal SIGUSER1 à 'period'
         envoieSignal = kill(pid, SIGUSR2);
 
@@ -37,42 +39,6 @@ int main(int argc, char *argv[]){
         }
 
         printf("Liste des commandes dans period :\n");
-
-        //recevoir la listCmd
-        //Ouverture du tube nommé s'il existe déjà sinon le créer
-        char *tubeNomme = "/tmp/period.fifo";
-        int fd = open(tubeNomme, O_RDWR);
-
-        if(fd == -1){
-
-            perror("open");
-            exit(-1);
-
-        }
-
-        char **listCmd = recv_argv(fd);   
-
-        closeTube(fd);
-        unlink(tubeNomme);
-
-        //afficher la listCmd
-        ssize_t j = 0;
-        while(listCmd[j] != NULL){
-
-            printf("%s\n",listCmd[j]);
-            j++;
-
-        }
-
-        ssize_t i = 0;
-        while(listCmd[i] != NULL){
-
-            free(listCmd[i]);
-            i++;
-
-        }
-
-        free(listCmd);
 
         exit(0);
 
@@ -94,7 +60,7 @@ int main(int argc, char *argv[]){
 
     }
 
-    /*//lecture du pid de 'period' par periodic
+    //lecture du pid de 'period' par periodic
     readPid = procExPeriod("/tmp/period.pid", &pid);
 
     if(readPid == -1){
@@ -113,7 +79,7 @@ int main(int argc, char *argv[]){
         perror("kill");
         exit(5);
 
-    }*/
+    }
 
     //envoyer les informations nécessaires à 'period' via le tube nommé
 

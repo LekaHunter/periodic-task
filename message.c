@@ -12,18 +12,9 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <time.h>
-#include <string.h>
 #include <ctype.h>
 #include <assert.h>
 #include <stdbool.h>
-
-struct cmd {
-
-    char *nameAndArgs;
-    long date;
-    long periode;
-
-};
 
 void creationOuvrirTube(char *path, int *fd){
 
@@ -61,9 +52,9 @@ void closeTube(int fd){
 }
 
 int send_string(int fd, const char *str){
-    ssize_t len = strlen(str);
+    size_t len = strlen(str);//longueur de str sans '\0'
 
-    ssize_t writeSize = write(fd, &len, sizeof(ssize_t));
+    ssize_t writeSize = write(fd, &len, sizeof(size_t));
 
     if(writeSize == -1){
 
@@ -72,7 +63,7 @@ int send_string(int fd, const char *str){
 
     }
 
-    ssize_t writeString = write(fd, str, len);
+    ssize_t writeString = write(fd, str, len+1);
 
     if(writeString == -1){
 
@@ -86,9 +77,9 @@ int send_string(int fd, const char *str){
 
 char *recv_string(int fd){
 
-    ssize_t sizeString;
+    size_t sizeString;
 
-    ssize_t readSize = read(fd, &sizeString, sizeof(ssize_t));
+    ssize_t readSize = read(fd, &sizeString, sizeof(size_t));
 
     if(readSize == -1){
 
@@ -101,7 +92,7 @@ char *recv_string(int fd){
 
     assert(str != NULL);
 
-    ssize_t readString = read(fd, str, sizeString);
+    ssize_t readString = read(fd, str, sizeString+1);
 
     if(readString == -1){
 
@@ -115,17 +106,16 @@ char *recv_string(int fd){
 
 int send_argv(int fd, char *argv[]){
 
-    size_t i = 0;
+    size_t size = 0;
     
-    while(argv[i] != NULL){
+    while(argv[size] != NULL){
 
-        i++;
+        size++;
 
     }
 
-    i++; // pour le NULL en fin de tableau
-
-    ssize_t writeSizeArgv = write(fd, &i, sizeof(ssize_t));
+    //size without NULL
+    ssize_t writeSizeArgv = write(fd, &size, sizeof(size_t));
 
     if(writeSizeArgv == -1){
 
@@ -168,19 +158,131 @@ char **recv_argv(int fd){
 
     }
 
-    char **argv = (char **)calloc(sizeArr,sizeof(char *));
+    char **argv = (char **)calloc(sizeArr+1,sizeof(char *));
+    argv[sizeArr] = NULL;
 
     assert(argv != NULL);
-
-    argv[sizeArr-1] = NULL;
     
-    for(size_t i = 0; i < sizeArr-1; i++){
+    for(size_t j = 0; j < sizeArr; j++){
 
-        argv[i] = recv_string(fd);
+        argv[j] = recv_string(fd);
 
     }
 
     return argv;
+}
+
+int send_cmd(int fd, struct cmd *self){
+
+    int resSend = send_argv(fd, self->nameAndArgs);
+
+    if(resSend != 0){
+
+        fprintf(stderr,"The array of string can't be send!\n");
+        exit(-1);
+
+    }
+
+    ssize_t writeDate = write(fd, &self->date, sizeof(size_t));
+
+    if(writeDate == -1){
+
+        fprintf(stderr,"The date of the cmd can't be write in the pipe\n");
+        exit(-1);
+
+    }
+
+    ssize_t writePeriod = write(fd, &self->periode, sizeof(size_t));
+
+    if(writePeriod == -1){
+
+        fprintf(stderr,"The period of the cmd can't be write in the pipe\n");
+        exit(-1);
+
+    }
+
+    return 0;
+}
+
+int send_arrayCmd(int fd, struct array *self){
+
+    //size without NULL
+    ssize_t writeSizeSelf = write(fd, &(self->size), sizeof(size_t));
+
+    if(writeSizeSelf == -1){
+
+        fprintf(stderr,"The size array of the string can't be write in the pipe\n");
+        exit(-1);
+
+    }
+
+    for(size_t i = 0; i < self->size; i++){
+
+        int resSendCmd = send_cmd(fd, &(self->listCmd[i]));
+
+        if(resSendCmd == -1){
+
+            fprintf(stderr,"Erreur send_cmd\n");
+            exit(3);
+
+        }
+
+    }
+
+    return 0;
+}
+
+//envoie d'une command via fd
+struct cmd *recv_cmd(int fd){
+
+    size_t sizeCmdTab;
+
+    //envoie de la taille du tableau char **sizeCmdTab
+    ssize_t readSizeCmdTab = read(fd, &sizeCmdTab, sizeof(size_t));
+
+    if(readSizeCmdTab == -1){
+
+        fprintf(stderr,"The size of the array of the string can't be read in the pipe\n");
+        exit(-1);
+
+    }
+
+    struct cmd *recv_cmd;
+
+    recv_cmd = (struct cmd *)calloc(1,sizeof(struct cmd));
+
+    //creation d'une cmd avec la taille reçu
+    cmd_create(recv_cmd, sizeCmdTab+1);
+
+    //remplir le tableau char **sizeCmdTab du nouveau cmd créer par les string que l'on reçoit 
+    for(size_t j = 0; j < sizeCmdTab; j++){
+
+        recv_cmd->nameAndArgs[j] = recv_string(fd);
+
+    }
+
+    //lire/sauvegarder la date de lancement de la cmd
+    ssize_t readDate = read(fd, &recv_cmd->date, sizeof(size_t));
+
+    if(readDate == -1){
+
+        fprintf(stderr,"The date can't be read in the pipe\n");
+        exit(-1);
+
+    }
+
+    //lire/sauvegarder la periode de lancement de la cmd
+    ssize_t readPeriod = read(fd, &recv_cmd->periode, sizeof(size_t));
+
+    if(readPeriod == -1){
+
+        fprintf(stderr,"The period can't be read in the pipe\n");
+        exit(-1);
+
+    }
+
+    //renvoyé l'adresse de la cmd ainsi créer
+    return recv_cmd;
 }
 
 int procExPeriod(const char *path, pid_t *pid){
@@ -439,6 +541,29 @@ int argvValidite(int argc, char *argv[]){
     return 0;
 }
 
+void cmd_create(struct cmd *self, size_t size){
+
+    assert(self != NULL);
+
+    self->date = 0;
+    self->periode = 0;
+
+    self->nameAndArgs = (char **)calloc(size, sizeof(char *));
+    self->nameAndArgs[size-1] = NULL;
+
+}
+
+void cmd_destroy(struct cmd *self){
+
+    assert(self != NULL);
+
+    free(self->nameAndArgs);
+
+    self->date = 0;
+    self->periode = 0;
+
+}
+
 void array_create(struct array *self){
 
     assert(self != NULL);
@@ -452,6 +577,12 @@ void array_create(struct array *self){
 void array_destroy(struct array *self){
 
     assert(self != NULL);
+
+    for(size_t i = 0; i < self->size; i++){
+
+        cmd_destroy(&(self->listCmd[i]));
+
+    }
 
     free(self->listCmd);
     self->capacity = 0;
@@ -506,9 +637,7 @@ struct cmd *array_get(const struct array *self, size_t index){
         
     }
 
-    struct cmd *getCmd = NULL;
-  
-    getCmd = &(self->listCmd[index]);
+    struct cmd *getCmd = &(self->listCmd[index]);
     
     return getCmd;
 }
@@ -525,7 +654,21 @@ bool compare_cmd(struct cmd cmd1, struct cmd cmd2){
 
     assert(&cmd1 != NULL && &cmd2 != NULL);
 
-    if(strcmp(cmd1.nameAndArgs,cmd2.nameAndArgs) == 0 && cmd1.date == cmd2.date && cmd1.periode == cmd2.periode){
+    bool testTab = true;
+    size_t i = 0;
+    while(cmd1.nameAndArgs[i] != NULL && cmd2.nameAndArgs[i] != NULL){
+
+        if(strcmp(cmd1.nameAndArgs[i],cmd2.nameAndArgs[i]) != 0){
+
+            testTab = false;
+            break;
+
+        }
+
+        i++;
+    }
+
+    if(testTab == true && cmd1.date == cmd2.date && cmd1.periode == cmd2.periode){
 
         return true;
 
