@@ -130,6 +130,7 @@ int main(int argc,char *argv[]){
         if(usr1_receive == 1){           
             
             char **argv_recv = recv_argv(fd);   
+<<<<<<< HEAD
 
             size_t size = 0;
 
@@ -180,6 +181,26 @@ int main(int argc,char *argv[]){
             break;
 
         }
+=======
+
+            size_t size = 0;
+
+            while(argv_recv[size] != NULL){
+
+                size++;
+
+            }
+
+            free(argv_recv);
+            closeTube(fd);
+            unlink(tubeNomme);
+
+            usr1_receive = 0;
+            break;
+
+        }
+
+>>>>>>> 0f1883e085dd89cfc0f049fc4455e4bbe971c058
 
     }
 
