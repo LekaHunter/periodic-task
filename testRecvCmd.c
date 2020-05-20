@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[]){
 
-    int fd = open("/tmp/example.fifo", O_RDWR);
+    int fd = open("/tmp/example.fifo", O_RDONLY);
 
     if(fd == -1){
         perror("open");
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
     //recv string by fd
     printf("Receve the string :\n");
 
-    size_t cap;
+    size_t cap = 0;
 
     //receve the capacity
     ssize_t readCap = read(fd, &cap, sizeof(size_t));
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
 
     }
 
-    size_t size;
+    size_t size = 0;
 
     //receve the size
     ssize_t readSize = read(fd, &size, sizeof(size_t));
@@ -45,12 +45,10 @@ int main(int argc, char *argv[]){
 
     }
 
-    char **res;
-
     //receve the array of char * it containe the cmd and its arg
     for(size_t i = 0; i < size; i++){
 
-        res = recv_argv(fd);
+        char **res = recv_argv(fd);
 
         size_t i = 0;
         while(res[i] != NULL){
@@ -60,7 +58,7 @@ int main(int argc, char *argv[]){
 
         }
 
-        size_t date;
+        size_t date = 0;
 
         //receve the size
         ssize_t readDate = read(fd, &date, sizeof(size_t));
@@ -72,7 +70,7 @@ int main(int argc, char *argv[]){
 
         }
 
-        size_t periode;
+        size_t periode = 0;
 
         //receve the size
         ssize_t readPeriode = read(fd, &periode, sizeof(size_t));
@@ -88,12 +86,22 @@ int main(int argc, char *argv[]){
         printf("periode = %ld\n",periode);
         printf("\n");
 
+        size_t j = 0;
+        while(res[j] != NULL){
+
+            free(res[j]);
+            j++;
+
+        }
+
         free(res);
 
     }
 
     printf("capacity = %ld\n",cap);
     printf("size = %ld\n",size);
+
+    sleep(3);
 
     int closeFd = close(fd);
 
@@ -103,8 +111,6 @@ int main(int argc, char *argv[]){
         exit(4);
 
     }
-
-    unlink("/tmp/example.fifo");
 
     return 0;
 }

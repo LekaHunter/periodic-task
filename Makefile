@@ -1,11 +1,11 @@
 CC=gcc
 OPTION=-g -c -o
 
-testeLib: testLib.o message.o
-	$(CC) -g testLib.o message.o -o testLib
+testEnvCmd: testEnvCmd.o message.o
+	$(CC) -g testEnvCmd.o message.o -o testEnvCmd
 	
-testLib.o:
-	$(CC) $(OPTION) testLib.o testLib.c
+testEnvCmd.o:
+	$(CC) $(OPTION) testEnvCmd.o testEnvCmd.c
 	
 message.o: message.c message.h
 	$(CC) $(OPTION) message.o message.c

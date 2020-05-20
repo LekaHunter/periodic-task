@@ -11,17 +11,14 @@
 
 int main(){
 
-    int fd;
-    char *tubenomme = "/tmp/example.fifo";
-
-    int res = mkfifo(tubenomme, S_IRWXU);
+    int res = mkfifo("/tmp/example.fifo", 0644);
 
     if(res == -1){
         perror("mkfifo");
         exit(1);
     }
 
-    fd = open(tubenomme, O_RDWR);
+    int fd = open("/tmp/example.fifo", O_WRONLY);
 
     if(fd == -1){
         perror("open");
@@ -65,7 +62,7 @@ int main(){
     array_add(&lcmd, cmdTest2);
 
     printf("capacity list cmd = %ld\n", lcmd.capacity);
-    printf("size list cmd =%ld\n",lcmd.size);
+    printf("size list cmd =%ld\n\n",lcmd.size);
 
     //affichage de array cmd
     for(size_t i = 0; i < lcmd.size; i++){
@@ -91,8 +88,6 @@ int main(){
 
     //envoyer le size du tableau
 
-    sleep(3);
-
     //send capacity
     ssize_t writeCap = write(fd, &lcmd.capacity, sizeof(size_t));
 
@@ -103,8 +98,6 @@ int main(){
 
     }
 
-    sleep(3);
-
     //send size
     ssize_t writeSize = write(fd, &lcmd.size, sizeof(size_t));
 
@@ -114,8 +107,6 @@ int main(){
         exit(-1);
 
     }
-
-    sleep(3);
 
     //send array of char * of the cmd and its arg
     for(size_t i = 0; i < lcmd.size; i++){
@@ -141,11 +132,11 @@ int main(){
         }
 
     }
-    
-    sleep(3);
 
     //libération de la mémoir
     array_destroy(&lcmd);
+
+    sleep(3);
 
     int closeFd = close(fd);
 
@@ -156,7 +147,7 @@ int main(){
 
     }
 
-    unlink(tubenomme);
+    unlink("/tmp/example.fifo");
 
     return 0;
 }
