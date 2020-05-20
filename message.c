@@ -63,7 +63,7 @@ int send_string(int fd, const char *str){
 
     }
 
-    ssize_t writeString = write(fd, str, len+1);
+    ssize_t writeString = write(fd, str, len);
 
     if(writeString == -1){
 
@@ -77,7 +77,7 @@ int send_string(int fd, const char *str){
 
 char *recv_string(int fd){
 
-    size_t sizeString;
+    size_t sizeString = 0;
 
     ssize_t readSize = read(fd, &sizeString, sizeof(size_t));
 
@@ -90,9 +90,7 @@ char *recv_string(int fd){
 
     char *str = (char *)calloc(sizeString+1,sizeof(char));
 
-    assert(str != NULL);
-
-    ssize_t readString = read(fd, str, sizeString+1);
+    ssize_t readString = read(fd, str, sizeString);
 
     if(readString == -1){
 
@@ -100,6 +98,8 @@ char *recv_string(int fd){
         exit(-1);
 
     }
+
+    str[sizeString] = '\0';
 
     return str;
 }
@@ -124,7 +124,7 @@ int send_argv(int fd, char *argv[]){
 
     }
 
-    int resSendString;
+    int resSendString = 0;
 
     size_t j = 0;
     while(argv[j] != NULL){
@@ -137,7 +137,7 @@ int send_argv(int fd, char *argv[]){
             exit(-1);
 
         }
-
+        
         j++;
 
     }
@@ -147,9 +147,9 @@ int send_argv(int fd, char *argv[]){
 
 char **recv_argv(int fd){
 
-    size_t sizeArr;
+    size_t size = 0;
 
-    ssize_t readSizeArr = read(fd, &sizeArr, sizeof(size_t));
+    ssize_t readSizeArr = read(fd, &size, sizeof(size_t));
 
     if(readSizeArr == -1){
 
@@ -158,18 +158,17 @@ char **recv_argv(int fd){
 
     }
 
-    char **argv = (char **)calloc(sizeArr+1,sizeof(char *));
-    argv[sizeArr] = NULL;
+    char **arr = (char **)calloc(size+1,sizeof(char *));
 
-    assert(argv != NULL);
-    
-    for(size_t j = 0; j < sizeArr; j++){
+    for(size_t j = 0; j < size; j++){
 
-        argv[j] = recv_string(fd);
+        arr[j] = recv_string(fd);
 
-    }
+   }
 
-    return argv;
+    arr[size] = NULL;
+
+    return arr;
 }
 
 int send_cmd(int fd, struct cmd *self){
@@ -590,7 +589,7 @@ void array_destroy(struct array *self){
 
 }
 
-void array_add(struct array *self, struct cmd cmd){
+void array_add(struct array *self, struct cmd newAdd){
 
     assert(self != NULL);
 
@@ -608,7 +607,7 @@ void array_add(struct array *self, struct cmd cmd){
 
     }
 
-    self->listCmd[self->size] = cmd;
+    self->listCmd[self->size] = newAdd;
     self->size = self->size + 1;
 
 }

@@ -45,10 +45,12 @@ int main(int argc, char *argv[]){
 
     }
 
+    char **res;
+
     //receve the array of char * it containe the cmd and its arg
     for(size_t i = 0; i < size; i++){
 
-        char **res = recv_argv(fd);
+        res = recv_argv(fd);
 
         size_t i = 0;
         while(res[i] != NULL){
@@ -85,6 +87,8 @@ int main(int argc, char *argv[]){
         printf("date = %ld\n",date);
         printf("periode = %ld\n",periode);
         printf("\n");
+
+        free(res);
 
     }
 

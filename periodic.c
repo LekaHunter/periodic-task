@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
 
     }
 
-    sleep(10);
+    sleep(5);
 
     int sendArgv = send_argv(fd, argv);
 
@@ -117,7 +117,10 @@ int main(int argc, char *argv[]){
         
     }
 
+    sleep(5);
+
     closeTube(fd);
+    unlink(tubeNomme);
 
     return 0;
 }

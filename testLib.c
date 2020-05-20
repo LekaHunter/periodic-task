@@ -11,27 +11,24 @@
 
 int main(int argc, char *argv[]){
 
-    int fd;
-    char *tubenomme = "/tmp/example.fifo";
-    int resSend;
+    //char *tubenomme = "/tmp/example.fifo";
+    //int resSend;
 
-    int res = mkfifo(tubenomme, S_IRWXU);
+    int res = mkfifo("/tmp/example.fifo", 0644);
 
     if(res == -1){
         perror("mkfifo");
         exit(1);
     }
 
-    fd = open(tubenomme, O_RDWR);
+    int fd = open("/tmp/example.fifo", O_WRONLY);
 
     if(fd == -1){
         perror("open");
         exit(2);
     }
 
-    const char *str = "Salut/toi/yo/ghy/yo/ahahahahahahahahaZ";
-
-    sleep(2);
+    /*const char *str = "echo";
 
     //send string in the named pipe
     printf("Send '%s' with %ld size in the named pipe\n",str,strlen(str));
@@ -43,7 +40,7 @@ int main(int argc, char *argv[]){
         exit(3);
     }
 
-    sleep(2);
+    sleep(2);*/
 
     //send array of string
     printf("Send an array of string\n");
@@ -54,17 +51,20 @@ int main(int argc, char *argv[]){
     argvEx[1] = "toi";
     argvEx[2] = "yo";
     argvEx[3] = "ghy";
-    argvEx[4] = NULL;    
+    argvEx[4] = NULL;
 
-    for(size_t j = 0; j < 4; j++){
+    int resSendArgv = send_argv(fd,argvEx);
 
-        printf("%s\n",argvEx[j]);
+    if(resSendArgv != 0){
+
+        fprintf(stderr,"Send argv ne fonction pas!\n");
+        exit(1);
 
     }
 
-    sleep(2);
+    free(argvEx);
 
-    int resSendArgv = send_argv(fd,argvEx);
+    sleep(5);
 
     int closeFd = close(fd);
 
@@ -75,9 +75,7 @@ int main(int argc, char *argv[]){
 
     }
 
-    free(argvEx);
-
-    unlink(tubenomme);
+    unlink("/tmp/example.fifo");
 
     return 0;
 }

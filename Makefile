@@ -1,17 +1,14 @@
 CC=gcc
-TARGET=projet
+OPTION=-g -c -o
 
-all=$(TARGET)
-
-$(TARGET): periodic.o message.o
-	$(CC) periodic.o message.o -o $(TARGET)
-
-periodic.o: periodic.c message.h
-	$(CC) -c -o periodic.o periodic.c
-
+testeLib: testLib.o message.o
+	$(CC) -g testLib.o message.o -o testLib
+	
+testLib.o:
+	$(CC) $(OPTION) testLib.o testLib.c
+	
 message.o: message.c message.h
-	$(CC) -c -o message.o message.c
+	$(CC) $(OPTION) message.o message.c
 
 clean: 
 	rm -f *.o
-	rm -f $(TARGET)
