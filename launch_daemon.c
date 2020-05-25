@@ -5,7 +5,17 @@
 #include <sys/types.h>
 #include <sys/stat.h> 
 
+//pour lancer un executable pour qu'il devienne un daemon le mettre en chemin absolu
+
 int main(int argc, char *argv[]){
+
+    if(argc != 2){
+
+        printf("le lancer de daemon doit avoir qu'un argument\n");
+        printf("Usage : ./launch_daemon /chemin_absolu\n");
+        exit(1);
+
+    }
 
     if(fork() == 0){
 

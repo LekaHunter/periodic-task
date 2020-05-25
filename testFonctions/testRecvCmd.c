@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
         size_t i = 0;
         while(res[i] != NULL){
 
-            printf("%s\n",res[i]);
+            printf("%s ",res[i]);
             i++;
 
         }
