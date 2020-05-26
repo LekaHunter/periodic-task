@@ -249,270 +249,43 @@ int main(int argc,char *argv[]){
     size_t i = 0;
 
     //exo 8 >
-    while(1){ 
+    while(1){
 
-        if(list_cmd.size > 0){
+        long attente = 0;
+        
+        printf("1er attente : %ld\n", attente);
 
-            size_t h = 0;
-            while(list_cmd.listCmd[0].nameAndArgs[h] != NULL){
+        long actuel = time(NULL);
 
-                h++;
+        for(size_t i = 0; i < list_cmd.size; i++){
 
-            }      
+            printf("%ld-eme boucle\n", i);
 
-            cmd_create(&tmp, h);           
-            
-            size_t k = 0;
-            while(list_cmd.listCmd[0].nameAndArgs[k] != NULL){
-                
-                size_t sizeStr = strlen(list_cmd.listCmd[0].nameAndArgs[k]);
-                tmp.nameAndArgs[k] = (char *)calloc(sizeStr+1,sizeof(char));
+            if((list_cmd.listCmd[i].periode > 0) && (attente == 0)){
 
-                size_t x = 0;
-                while(list_cmd.listCmd[0].nameAndArgs[k][x] != '\0'){
-                    
-                    tmp.nameAndArgs[k][x] = list_cmd.listCmd[0].nameAndArgs[k][x];
-                    x++;
+                attente = list_cmd.listCmd[i].periode;
 
-                }                
-
-                tmp.nameAndArgs[k][sizeStr] = '\0';
-
-                k++;
+                printf("%ld attente : %ld\n",i ,attente);
 
             }
 
-            tmp.date = list_cmd.listCmd[0].date;
-            tmp.periode = list_cmd.listCmd[0].periode;            
+            if(list_cmd.listCmd[i].date != 0){
 
-            for(size_t j = 1; j < list_cmd.size; j++){
+                if(attente > list_cmd.listCmd[i].date - actuel){
 
+                    attente = list_cmd.listCmd[i].date - actuel;
 
-                if(tmp.date > list_cmd.listCmd[j].date){
-
-                    tmp.date = list_cmd.listCmd[j].date;
-                    tmp.periode = list_cmd.listCmd[j].periode;
-                    
-                    size_t k = 0;
-                    while(list_cmd.listCmd[j].nameAndArgs[k] != NULL){
-
-                        tmp.nameAndArgs[k] = list_cmd.listCmd[j].nameAndArgs[k];
-                        k++;
-
-                    }
-
-                }
-
-            }
-
-            if(tmp.date == 0){
-
-                if(tmp.periode == 0){
-
-                    sprintf(out,"/tmp/period/%ld.out",i+1);
-
-                    sprintf(err,"/tmp/period/%ld.err",i+1);
-
-                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
-
-                    if(fdDevNull == -1){
-
-                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
-                        perror("open");
-                        exit(1);
-
-                    }
-
-                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
-
-                    if(fdoutFils == -1){
-
-                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                        perror("open");
-                        exit(1);
-
-                    }
-
-                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
-
-                    if(fderrFils == -1){
-                        
-                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                        perror("open");
-                        exit(1);
-                        
-                    }
-
-                    if(fork() == 0){                
-
-                        int rfdDevNull = dup2(fdDevNull, 0);
-
-                        if(rfdDevNull == -1 ){
-
-                            fprintf(stderr,"redirection de stdin du fils\n");
-                            perror("dup2");
-                            exit(1);
-
-                        }
-
-                        close(fdDevNull);
-
-                        int rfdoutFils = dup2(fdoutFils, 1);
-
-                        if(rfdoutFils == -1 ){
-
-                            fprintf(stderr,"redirection de stdout du fils\n");
-                            perror("dup2");
-                            exit(1);
-
-                        }
-
-                        close(fdoutFils);
-
-                        int rfderrFils = dup2(fderrFils, 2);
-
-                        if(rfderrFils == -1 ){
-                            
-                            fprintf(stderr,"redirection de stderr du fils\n");
-                            perror("dup2");
-                            exit(2);
-
-                        }
-                        
-                        close(fderrFils);
-
-                        int n = execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
-
-                        if(n == -1){
-
-                            fprintf(stderr,"Errer : %d\n",errno);
-
-                        }
-
-                    }
-
-                    cmd_destroy(&tmp);
-
-                    close(fdoutFils);
-                    close(fderrFils);
+                    printf("%ld attente : %ld\n",i ,attente);
 
                 }else{
 
-                    sprintf(out,"/tmp/period/%ld.out",i+1);
+                    if((attente > list_cmd.listCmd[i].date - actuel) && (list_cmd.listCmd[i].periode > 0)){
 
-                    sprintf(err,"/tmp/period/%ld.err",i+1);
+                        attente = list_cmd.listCmd[i].date - actuel;
 
-                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
-
-                    if(fdDevNull == -1){
-
-                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
-                        perror("open");
-                        exit(1);
+                        printf("%ld attente : %ld\n",i ,attente);
 
                     }
-
-                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
-
-                    if(fdoutFils == -1){
-
-                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                        perror("open");
-                        exit(1);
-
-                    }
-
-                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
-
-                    if(fderrFils == -1){
-                        
-                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                        perror("open");
-                        exit(1);
-                        
-                    }
-
-                    if(fork() == 0){                
-
-                        int rfdDevNull = dup2(fdDevNull, 0);
-
-                        if(rfdDevNull == -1 ){
-
-                            fprintf(stderr,"redirection de stdin du fils\n");
-                            perror("dup2");
-                            exit(1);
-
-                        }
-
-                        close(fdDevNull);
-
-                        int rfdoutFils = dup2(fdoutFils, 1);
-
-                        if(rfdoutFils == -1 ){
-
-                            fprintf(stderr,"redirection de stdout du fils\n");
-                            perror("dup2");
-                            exit(1);
-
-                        }
-
-                        close(fdoutFils);
-
-                        int rfderrFils = dup2(fderrFils, 2);
-
-                        if(rfderrFils == -1 ){
-                            
-                            fprintf(stderr,"redirection de stderr du fils\n");
-                            perror("dup2");
-                            exit(2);
-
-                        }
-                        
-                        close(fderrFils);
-
-                        int n = execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
-
-                        if(n == -1){
-
-                            fprintf(stderr,"Errer : %d\n",errno);
-
-                        }
-
-                    }
-
-                    size_t search = array_search(&list_cmd,tmp);
-
-                    array_remove(&list_cmd, search);
-
-                    tmp.date = tmp.date + tmp.periode;
-
-                    array_add(&list_cmd, tmp);
-
-                    cmd_destroy(&tmp);
-
-                    close(fdoutFils);
-                    close(fderrFils);                
-
-                }
-
-            }else{
-
-                long start = time(NULL) - tmp.date;
-
-                alarm(start);
-                pause();
-
-                if(tmp.periode != 0){
-
-                    size_t search = array_search(&list_cmd,tmp);
-
-                    array_remove(&list_cmd, search);
-
-                    tmp.date = tmp.date + tmp.periode;
-
-                    array_add(&list_cmd, tmp);
-
-                    cmd_destroy(&tmp);
 
                 }
 
@@ -520,88 +293,196 @@ int main(int argc,char *argv[]){
 
         }
 
+        printf("fin attente : %ld\n", attente);
+
+        if(attente == 0){
+
+            long actuelSig = time(NULL);
+
+            for(size_t j = 0; j < list_cmd.size; j++){
+
+                if(list_cmd.listCmd[j].date == actuelSig){
+
+                    sprintf(out,"/tmp/period/%ld.out",j+1);
+
+                    sprintf(err,"/tmp/period/%ld.err",j+1);
+
+                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
+
+                    if(fdDevNull == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
+
+                    if(fdoutFils == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
+
+                    if(fderrFils == -1){
+                        
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+                        
+                    }
+
+                    if(fork() == 0){                
+
+                        int rfdDevNull = dup2(fdDevNull, 0);
+
+                        if(rfdDevNull == -1 ){
+
+                            fprintf(stderr,"redirection de stdin du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdDevNull);
+
+                        int rfdoutFils = dup2(fdoutFils, 1);
+
+                        if(rfdoutFils == -1 ){
+
+                            fprintf(stderr,"redirection de stdout du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdoutFils);
+
+                        int rfderrFils = dup2(fderrFils, 2);
+
+                        if(rfderrFils == -1 ){
+                            
+                            fprintf(stderr,"redirection de stderr du fils\n");
+                            perror("dup2");
+                            exit(2);
+
+                        }
+                        
+                        close(fderrFils);
+
+                        execvp(list_cmd.listCmd[j].nameAndArgs[0], list_cmd.listCmd[j].nameAndArgs);
+
+                    }
+
+                    close(fdoutFils);
+                    close(fderrFils);
+
+                }
+
+            }
+
+        }else{
+            
+            alarm(attente);
+            pause();
+
+        }        
+
         if(usr1_receive == 4){
 
-            sprintf(out,"/tmp/period/%ld.out",i+1);
+            long actuelSig = time(NULL);
 
-            sprintf(err,"/tmp/period/%ld.err",i+1);
+            for(size_t j = 0; j < list_cmd.size; j++){
 
-            size_t fdDevNull = open(devnull, O_WRONLY, 0);
+                if(list_cmd.listCmd[j].date == actuelSig){
 
-            if(fdDevNull == -1){
+                    sprintf(out,"/tmp/period/%ld.out",j+1);
 
-                fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
-                perror("open");
-                exit(1);
+                    sprintf(err,"/tmp/period/%ld.err",j+1);
 
-            }
+                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
 
-            size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
+                    if(fdDevNull == -1){
 
-            if(fdoutFils == -1){
+                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
+                        perror("open");
+                        exit(1);
 
-                fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                perror("open");
-                exit(1);
+                    }
 
-            }
+                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
 
-            size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
+                    if(fdoutFils == -1){
 
-            if(fderrFils == -1){
-                
-                fprintf(stderr,"Error lors de l'ouverture du fils\n");
-                perror("open");
-                exit(1);
-                
-            }
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
 
-            if(fork() == 0){                
+                    }
 
-                int rfdDevNull = dup2(fdDevNull, 0);
+                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
 
-                if(rfdDevNull == -1 ){
+                    if(fderrFils == -1){
+                        
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+                        
+                    }
 
-                    fprintf(stderr,"redirection de stdin du fils\n");
-                    perror("dup2");
-                    exit(1);
+                    if(fork() == 0){                
+
+                        int rfdDevNull = dup2(fdDevNull, 0);
+
+                        if(rfdDevNull == -1 ){
+
+                            fprintf(stderr,"redirection de stdin du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdDevNull);
+
+                        int rfdoutFils = dup2(fdoutFils, 1);
+
+                        if(rfdoutFils == -1 ){
+
+                            fprintf(stderr,"redirection de stdout du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdoutFils);
+
+                        int rfderrFils = dup2(fderrFils, 2);
+
+                        if(rfderrFils == -1 ){
+                            
+                            fprintf(stderr,"redirection de stderr du fils\n");
+                            perror("dup2");
+                            exit(2);
+
+                        }
+                        
+                        close(fderrFils);
+
+                        execvp(list_cmd.listCmd[j].nameAndArgs[0], list_cmd.listCmd[j].nameAndArgs);
+
+                    }
+
+                    close(fdoutFils);
+                    close(fderrFils);
 
                 }
 
-                close(fdDevNull);
-
-                int rfdoutFils = dup2(fdoutFils, 1);
-
-                if(rfdoutFils == -1 ){
-
-                    fprintf(stderr,"redirection de stdout du fils\n");
-                    perror("dup2");
-                    exit(1);
-
-                }
-
-                close(fdoutFils);
-
-                int rfderrFils = dup2(fderrFils, 2);
-
-                if(rfderrFils == -1 ){
-                    
-                    fprintf(stderr,"redirection de stderr du fils\n");
-                    perror("dup2");
-                    exit(2);
-
-                }
-                
-                close(fderrFils);
-
-                execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
-
             }
-
-            cmd_destroy(&tmp);
-
-            close(fdoutFils);
-            close(fderrFils);
 
             usr1_receive = 0;
         }
