@@ -239,216 +239,371 @@ int main(int argc,char *argv[]){
         dir = opendir(repPeriod);
 
     }
+
+    char out[MAX_ARG_STRLEN];
+    char err[MAX_ARG_STRLEN];
+    char *devnull = "/dev/null";
+
+    struct cmd tmp;    
     
     size_t i = 0;
 
     //exo 8 >
-    while(1){
+    while(1){ 
 
-        if(i < list_cmd.size){
+        if(list_cmd.size > 0){
 
-            char out[MAX_ARG_STRLEN];
-            char err[MAX_ARG_STRLEN];
-            char *devnull = "/dev/null";
+            size_t h = 0;
+            while(list_cmd.listCmd[0].nameAndArgs[h] != NULL){
+
+                h++;
+
+            }      
+
+            cmd_create(&tmp, h);           
+            
+            size_t k = 0;
+            while(list_cmd.listCmd[0].nameAndArgs[k] != NULL){
+                
+                size_t sizeStr = strlen(list_cmd.listCmd[0].nameAndArgs[k]);
+                tmp.nameAndArgs[k] = (char *)calloc(sizeStr+1,sizeof(char));
+
+                size_t x = 0;
+                while(list_cmd.listCmd[0].nameAndArgs[k][x] != '\0'){
+                    
+                    tmp.nameAndArgs[k][x] = list_cmd.listCmd[0].nameAndArgs[k][x];
+                    x++;
+
+                }                
+
+                tmp.nameAndArgs[k][sizeStr] = '\0';
+
+                k++;
+
+            }
+
+            tmp.date = list_cmd.listCmd[0].date;
+            tmp.periode = list_cmd.listCmd[0].periode;            
+
+            for(size_t j = 1; j < list_cmd.size; j++){
+
+
+                if(tmp.date > list_cmd.listCmd[j].date){
+
+                    tmp.date = list_cmd.listCmd[j].date;
+                    tmp.periode = list_cmd.listCmd[j].periode;
+                    
+                    size_t k = 0;
+                    while(list_cmd.listCmd[j].nameAndArgs[k] != NULL){
+
+                        tmp.nameAndArgs[k] = list_cmd.listCmd[j].nameAndArgs[k];
+                        k++;
+
+                    }
+
+                }
+
+            }
+
+            if(tmp.date == 0){
+
+                if(tmp.periode == 0){
+
+                    sprintf(out,"/tmp/period/%ld.out",i+1);
+
+                    sprintf(err,"/tmp/period/%ld.err",i+1);
+
+                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
+
+                    if(fdDevNull == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
+
+                    if(fdoutFils == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
+
+                    if(fderrFils == -1){
+                        
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+                        
+                    }
+
+                    if(fork() == 0){                
+
+                        int rfdDevNull = dup2(fdDevNull, 0);
+
+                        if(rfdDevNull == -1 ){
+
+                            fprintf(stderr,"redirection de stdin du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdDevNull);
+
+                        int rfdoutFils = dup2(fdoutFils, 1);
+
+                        if(rfdoutFils == -1 ){
+
+                            fprintf(stderr,"redirection de stdout du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdoutFils);
+
+                        int rfderrFils = dup2(fderrFils, 2);
+
+                        if(rfderrFils == -1 ){
+                            
+                            fprintf(stderr,"redirection de stderr du fils\n");
+                            perror("dup2");
+                            exit(2);
+
+                        }
+                        
+                        close(fderrFils);
+
+                        int n = execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
+
+                        if(n == -1){
+
+                            fprintf(stderr,"Errer : %d\n",errno);
+
+                        }
+
+                    }
+
+                    cmd_destroy(&tmp);
+
+                    close(fdoutFils);
+                    close(fderrFils);
+
+                }else{
+
+                    sprintf(out,"/tmp/period/%ld.out",i+1);
+
+                    sprintf(err,"/tmp/period/%ld.err",i+1);
+
+                    size_t fdDevNull = open(devnull, O_WRONLY, 0);
+
+                    if(fdDevNull == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
+
+                    if(fdoutFils == -1){
+
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+
+                    }
+
+                    size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
+
+                    if(fderrFils == -1){
+                        
+                        fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                        perror("open");
+                        exit(1);
+                        
+                    }
+
+                    if(fork() == 0){                
+
+                        int rfdDevNull = dup2(fdDevNull, 0);
+
+                        if(rfdDevNull == -1 ){
+
+                            fprintf(stderr,"redirection de stdin du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdDevNull);
+
+                        int rfdoutFils = dup2(fdoutFils, 1);
+
+                        if(rfdoutFils == -1 ){
+
+                            fprintf(stderr,"redirection de stdout du fils\n");
+                            perror("dup2");
+                            exit(1);
+
+                        }
+
+                        close(fdoutFils);
+
+                        int rfderrFils = dup2(fderrFils, 2);
+
+                        if(rfderrFils == -1 ){
+                            
+                            fprintf(stderr,"redirection de stderr du fils\n");
+                            perror("dup2");
+                            exit(2);
+
+                        }
+                        
+                        close(fderrFils);
+
+                        int n = execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
+
+                        if(n == -1){
+
+                            fprintf(stderr,"Errer : %d\n",errno);
+
+                        }
+
+                    }
+
+                    size_t search = array_search(&list_cmd,tmp);
+
+                    array_remove(&list_cmd, search);
+
+                    tmp.date = tmp.date + tmp.periode;
+
+                    array_add(&list_cmd, tmp);
+
+                    cmd_destroy(&tmp);
+
+                    close(fdoutFils);
+                    close(fderrFils);                
+
+                }
+
+            }else{
+
+                long start = time(NULL) - tmp.date;
+
+                alarm(start);
+                pause();
+
+                if(tmp.periode != 0){
+
+                    size_t search = array_search(&list_cmd,tmp);
+
+                    array_remove(&list_cmd, search);
+
+                    tmp.date = tmp.date + tmp.periode;
+
+                    array_add(&list_cmd, tmp);
+
+                    cmd_destroy(&tmp);
+
+                }
+
+            }
+
+        }
+
+        if(usr1_receive == 4){
 
             sprintf(out,"/tmp/period/%ld.out",i+1);
 
             sprintf(err,"/tmp/period/%ld.err",i+1);
 
-            long tmp = list_cmd.listCmd[i].date;
-            long tmpPeriod = list_cmd.listCmd[i].periode;
+            size_t fdDevNull = open(devnull, O_WRONLY, 0);
 
-            for (size_t j = i; j < list_cmd.size; j++){
+            if(fdDevNull == -1){
 
-                if(tmp > list_cmd.listCmd[j].date){
-
-                    tmp = list_cmd.listCmd[j].date;
-                    tmpPeriod = list_cmd.listCmd[i].periode;
-
-                }
+                fprintf(stderr,"Error lors de l'ouverture de '/dev/null' du fils\n");
+                perror("open");
+                exit(1);
 
             }
 
-            long timeDate = tmp - time(NULL);
+            size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
 
-            if(timeDate == 0){
+            if(fdoutFils == -1){
 
-                size_t fdDevNull = open(devnull, O_WRONLY);
+                fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                perror("open");
+                exit(1);
 
-                if(fdDevNull == -1){
+            }
 
-                    fprintf(stderr,"Error lors de l'ouverture de '/dev/null' de la %ld-ème fils\n",i+1);
-                    perror("open");
+            size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
+
+            if(fderrFils == -1){
+                
+                fprintf(stderr,"Error lors de l'ouverture du fils\n");
+                perror("open");
+                exit(1);
+                
+            }
+
+            if(fork() == 0){                
+
+                int rfdDevNull = dup2(fdDevNull, 0);
+
+                if(rfdDevNull == -1 ){
+
+                    fprintf(stderr,"redirection de stdin du fils\n");
+                    perror("dup2");
                     exit(1);
 
                 }
 
-                size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
+                close(fdDevNull);
 
-                if(fdoutFils == -1){
+                int rfdoutFils = dup2(fdoutFils, 1);
 
-                    fprintf(stderr,"Error lors de l'ouverture de '/tmp/period/%ld.out'\n",i+1);
-                    perror("open");
+                if(rfdoutFils == -1 ){
+
+                    fprintf(stderr,"redirection de stdout du fils\n");
+                    perror("dup2");
                     exit(1);
-
-                }
-
-                size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
-
-                if(fderrFils == -1){
-                    
-                    fprintf(stderr,"Error lors de l'ouverture de '/tmp/period/%ld.err'\n",i+1);
-                    perror("open");
-                    exit(1);
-                    
-                }
-
-                if(fork() == 0){                
-
-                    int rfdDevNull = dup2(fdDevNull, O_WRONLY);
-
-                    if(rfdDevNull == -1 ){
-
-                        fprintf(stderr,"redirection de stdin du fils\n");
-                        perror("dup2");
-                        exit(1);
-
-                    }
-
-                    close(fdDevNull);
-
-                    int rfdoutFils = dup2(fdoutFils, 1);
-
-                    if(rfdoutFils == -1 ){
-
-                        fprintf(stderr,"redirection de stdout du fils\n");
-                        perror("dup2");
-                        exit(1);
-
-                    }
-
-                    close(fdoutFils);
-
-                    int rfderrFils = dup2(fderrFils, 2);
-
-                    if(rfderrFils == -1 ){
-                        
-                        fprintf(stderr,"redirection de stderr du fils\n");
-                        perror("dup2");
-                        exit(2);
-
-                    }
-                    
-                    close(fderrFils);
-
-                    int n = execvp(list_cmd.listCmd[i].nameAndArgs[0], list_cmd.listCmd[i].nameAndArgs);
-
-                    if(n == -1){
-
-                        fprintf(stderr,"Errer : %d\n",errno);
-
-                    }
 
                 }
 
                 close(fdoutFils);
+
+                int rfderrFils = dup2(fderrFils, 2);
+
+                if(rfderrFils == -1 ){
+                    
+                    fprintf(stderr,"redirection de stderr du fils\n");
+                    perror("dup2");
+                    exit(2);
+
+                }
+                
                 close(fderrFils);
 
-            }else{
+                execvp(tmp.nameAndArgs[0],tmp.nameAndArgs);
 
-                alarm(timeDate);
-                pause();
-            
             }
 
-            if(usr1_receive == 4){
+            cmd_destroy(&tmp);
 
-                size_t fdDevNull = open(devnull, O_WRONLY, 0);
+            close(fdoutFils);
+            close(fderrFils);
 
-                if(fdDevNull == -1){
-
-                    fprintf(stderr,"Error lors de l'ouverture de '/dev/null' de la %ld-ème fils\n",i+1);
-                    perror("open");
-                    exit(1);
-
-                }
-
-                size_t fdoutFils = open(out, O_WRONLY | O_CREAT, 0644);
-
-                if(fdoutFils == -1){
-
-                    fprintf(stderr,"Error lors de l'ouverture de '/tmp/period/%ld.out'\n",i+1);
-                    perror("open");
-                    exit(1);
-
-                }
-
-                size_t fderrFils = open(err, O_WRONLY | O_CREAT, 0644);
-
-                if(fderrFils == -1){
-                    
-                    fprintf(stderr,"Error lors de l'ouverture de '/tmp/period/%ld.err'\n",i+1);
-                    perror("open");
-                    exit(1);
-                    
-                }
-
-                if(fork() == 0){                
-
-                    int rfdDevNull = dup2(fdDevNull, 0);
-
-                    if(rfdDevNull == -1 ){
-
-                        fprintf(stderr,"redirection de stdin du fils\n");
-                        perror("dup2");
-                        exit(1);
-
-                    }
-
-                    close(fdDevNull);
-
-                    int rfdoutFils = dup2(fdoutFils, 1);
-
-                    if(rfdoutFils == -1 ){
-
-                        fprintf(stderr,"redirection de stdout du fils\n");
-                        perror("dup2");
-                        exit(1);
-
-                    }
-
-                    close(fdoutFils);
-
-                    int rfderrFils = dup2(fderrFils, 2);
-
-                    if(rfderrFils == -1 ){
-                        
-                        fprintf(stderr,"redirection de stderr du fils\n");
-                        perror("dup2");
-                        exit(2);
-
-                    }
-                    
-                    close(fderrFils);
-
-                    int n = execvp(list_cmd.listCmd[i].nameAndArgs[0], list_cmd.listCmd[i].nameAndArgs);
-
-                    if(n == -1){
-
-                        fprintf(stderr,"Errer : %d\n",errno);
-
-                    }
-
-                }
-
-                close(fdoutFils);
-                close(fderrFils);
-
-                usr1_receive = 0;
-            }
-
-            i++;
-
+            usr1_receive = 0;
         }
 
         if(usr1_receive == 1){
@@ -640,6 +795,37 @@ int main(int argc,char *argv[]){
             unlink("/tmp/period.pid");           
             closedir(dir);
             /*--------------- terminer et éliminer tous les processus créés restant ----------*/
+            
+            //attendre et terminé tous les fils potentiels (exo 11)
+            //affichage de la terminaison de ses fils
+            while(1){
+
+                int statusFils = 0;
+                pid_t fils = wait(&statusFils);
+
+                if(fils == -1){
+
+                    break;
+
+                }else{
+
+                    if(WIFEXITED(statusFils)){
+
+                        if(WEXITSTATUS(statusFils) == 0){
+
+                            fprintf(stdout,"Le fils s'est arrété avec le statu de terminaison : %d\n",WEXITSTATUS(statusFils));
+                        
+                        }else{
+
+                            fprintf(stderr,"Le fils s'est terminé avec une anomalie de statu : %d\n",WEXITSTATUS(statusFils));
+                        
+                        } 
+
+                    }
+
+                }
+
+            }
 
             usr1_receive = 0;
             break;

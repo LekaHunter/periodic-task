@@ -150,14 +150,6 @@ struct cmd *array_get(const struct array *self, size_t index){
     return getCmd;
 }
 
-size_t array_size(const struct array *self){
-
-    assert(self != NULL);
-
-    return self->size;
-
-}
-
 bool compare_cmd(struct cmd cmd1, struct cmd cmd2){
 
     assert(&cmd1 != NULL && &cmd2 != NULL);

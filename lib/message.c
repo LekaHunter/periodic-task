@@ -15,7 +15,7 @@ int send_string(int fd, const char *str){
     if(writeSize == -1){
 
         fprintf(stderr,"The size of the string can't be write in the pipe\n");
-        return -1;
+        exit(1);
 
     }
 
@@ -24,7 +24,7 @@ int send_string(int fd, const char *str){
     if(writeString == -1){
 
         fprintf(stderr,"The string can't be write in the pipe\n");
-        return -1;
+        exit(2);
 
     }
 
@@ -40,7 +40,7 @@ char *recv_string(int fd){
     if(readSize == -1){
 
         fprintf(stderr,"The size of the string can't be read in the pipe\n");
-        exit(-1);
+        exit(1);
 
     }
 
@@ -51,11 +51,11 @@ char *recv_string(int fd){
     if(readString == -1){
 
         fprintf(stderr,"The string can't be read in the pipe\n");
-        exit(-1);
+        exit(2);
 
     }
 
-    str[sizeString] = '\0';
+    str[sizeString] = '\0';//Fermé la chaine de caractere avec le caractere de fin de chaine
 
     return str;
 }
@@ -76,7 +76,7 @@ int send_argv(int fd, char *argv[]){
     if(writeSizeArgv == -1){
 
         fprintf(stderr,"The size array of the string can't be write in the pipe\n");
-        exit(-1);
+        exit(1);
 
     }
 
@@ -90,7 +90,7 @@ int send_argv(int fd, char *argv[]){
         if(resSendString == -1){
 
             fprintf(stderr,"Erreur send_string\n");
-            exit(-1);
+            exit(2);
 
         }
         
@@ -110,7 +110,7 @@ char **recv_argv(int fd){
     if(readSizeArr == -1){
 
         fprintf(stderr,"The size of the array of the string can't be read in the pipe\n");
-        exit(-1);
+        exit(1);
 
     }
 
